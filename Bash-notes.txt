@@ -1,0 +1,327 @@
+Bash script
+
+- A script for the computer, just like a script for a movie, tells the computer what it should do or say. In the context of Bash scripts we are telling the Bash shell what it should do.
+
+- A Bash script is a plain text file which contains a series of commands, which are a mixture of commands we would normally type ourselves on the command line (ex: ls, cp), and commands we could type on the command line but generally we wouldn’t.
+
+- IMPORTANT: anything you can run normally on the command line can be put into a script and it will do exactly the same thing, and vice versa. 
+
+- Using explicit extension on a shell script is a bad practice because the script’s name is the user interface to the program. ex: use ekill instead of ekill.sh
+
+- In Linux shell (Bash), there is no built-in facility available to create user interface such as menus, different types of boxes like info box, message box, input box, etc. but in Red Hat Linux 6.0, there is one utility called dialog, which is used to create different types of boxes like info box, message box, menu box, input box, etc. 
+
+- the strstr() function: tells you whether or not a substring exists in a string
+strstr()
+{
+[ “${1#*$2*} = “$1” ] && return 1 
+}
+strstr “hello” “helloworld” 
+
+- exit: quit the entire script
+
+- abort : exit the script 
+
+- The return code from a shell function is a single byte, which has a value between 0 and 255, so anything larger than 255 will be wrapped around. For mathematical functions that return numerical values above 255, the solution is to echo the result as a string. 
+
+- To catch the return code from a function, use $( )
+ex: square() 
+{ 
+echo $(( $1 * $1 ))
+}
+****Another way of doing it: 
+square $n
+echo $? // the return result is passed back as $?
+
+result = $(square $n)
+
+- $(( expression )) : tells the shell to evaluate the express.
+$(( $1 * $1 )) is equal to `expr $1 \* $1`. However, the latter involves spawning the external expr program, rather than keeping it all in the bash process  
+
+- trap Command: used to detect signal (event) that occurs while the script was running. Syntax: 
+trap <commands to deal with the event> <signal number list>
+signal number list: 0 (shell exit) 1 (hangup) 2 (interrupt, like Ctrl C) 3 	(quit) 9 (kill, cannot be caught) 
+
+- shift Command: moves the current values stored in the positional parameters to the left of one position. 
+ex: Current command line args are: $1 = -f, $2 = foo, $3 = bar
+After shift command args are: $1=foo, $2=bar, $3= 
++ shift Command can be used to parse the command line options. This is useful if you have a limited number of command line option. If command line options are too many then this approach works slowly as well as complex to write and maintain. 
+
+- A good, clean, quick shell script:
++ The most important criteria is a clear, readable layout
++ Second is avoid unnecessary commands 
+
+VARIABLES
+
+- There are 2 types of variables: 
++ System variables: created and maintained by Linux itself. This type of variable is defined in CAPITAL LETTERS. ex: $PATH
++ User defined variables: created and maintained by user. Defined in lower letters 
+
+- Rules for naming variables:
++ must begin with alphanumeric character or underscore character, followed by one or more alphanumeric character 
++ When creating variable, there must be no space around the “=“ sign. ex: VAR=value, not VAR = value. 
++ case-sensitive
++ define NULL variable as follows: $ var= or $ var=“”. 
++ Do not use ?,* to name variables 
+
+- The shell doesn’t care about types of variables; they may store strings, integers, real numbers - ANYTHING!
+
+- read <variable name>: input variable values from the keyboard. Ex: read USER_NAME
+
+- We can determine the scope of variable using the export command. When the variable is exported, it is inherited by another program. 
+
+- In order to receive environment changes back from the script, we must source the script - this runs the script within our own interactive shell, instead of spawning another shell to run it. We can source a script via the “.” dot command. ex: . ./myvar.sh
+
+- The shell does not know where the variable ends and the rest starts. We fine this by using curly brackets. ex: 
+read USER_NAME
+echo “Hello $USER_NAME”
+touch “${USER_NAME}_file”
+
+- There are a set of variables which are set for us already, and most of these cannot have values assigned to them.
++ $0: the base name of the program as it was called
++ $1…$9 are the first 9 additional parameters the script was called with
++ $@: all parameters.
++ $*: similar to $@, but doesn’t preserve any whitespace, and quoting. GENERAL RULE: use $@ instead of $*
++ $#: the number of parameters the script was called with
++ $?: contains the exit value of the last run command. 0 if successful, nonzero if failed 
++ $$: the PID (process identifier) of the currently running shell. This can be useful for creating temporary files, such as /tmp/myscript.$$
++ $!: the PID of the last run background process (useful to keep track of the processes as it gets on with its job)
++ IFS: (internal field separator)
++ <command> & : run the command in a subshell in the background.
+ex: ls &
+
++ ^ : start of line. ex: grep “^foo”
+
++ $ : end of line. ex: grep “foo$”
+
++ = : string equality . ex: if [ “$foo” = “bar ]
+
++ $$ : PID (process identifier) of current shell 
+
++ $! : PID of the last background command 
+ex: ls & 
+      echo “PID of ls = $!”
+
++ $? : exit status of the last command.
+ex: ls 
+      echo “ls returned code = $?”
+
+- By using curly braces and the special “ :- “ or “ := “ usage, we can specify a default value to use if the variable is unset.
+ex: echo -n “What is your name [ `whoami` ] “
+      read myname
+      echo “Your name is : ${myname:-`whoami`}”
+
+- Local and Global shell variable (export command)
++ Local variable can be used in the same shell, if you load another copy of shell then new shell ignored all old shell’s variable
++ Global variable: You can copy old shell’s variable to new shell, such variable is known as Global Shell variable. 
++ To set global variable, use export command. Syntax:
+export var
+
+***: `whoami` runs in a subshell, so any cd commands or setting any other variables, within the backticks, will not affect the currently-running shell. 
+
+- Shell arithmetic: + - /(division) \*(multiplication) %. All arithmetic expressions begin and end with backquotes ` `. ex: `expr 6 + 3`
+
+- Exit status: is either 0 or non-zero. If it is 0, then the command executed is successful. If it is non-zero, then the command executed is unsuccessful. Command to determine exit status: echo $?. 
+
+- Escape characters: There are special characters that are still interpreted by the shell even if they are in quotes: “, $, `, \ . The backlash (\) character is used to mark these characters so that they are not interpreted by the shell, but passed on to the command being run. The backlash is placed right before the special character. ex: to print Hello “World”, the command is: echo “Hello \”World\””. ALSO: `back_quote`: to execute command.
+
+IF
+- If condition: syntax:
+if condition
+then 
+//commands to be executed
+else 
+//commands to be executed if conditions are not true 
+fi
+
+- Nested ifs
+
+- Multilevel ifs: syntax
+if condition
+then 
+	//commands to be executed
+elif condition 1 // like else if
+then
+	//commands
+elif condition 2 
+then
+	//commands
+else
+	//commands
+fi 
+
+- Beware of syntax: the if […] and the “then” commands must be on different lines. Alternatively, the semicolon ; can separate them:  
+if [ …. ]; then 
+# do something
+fi 
+
+- There is a simpler way of writing if statements: the && and || commands give code to run if the result is true, or false, respectively.
+ex: [ -f $X ] && echo “X is a file” || echo “X is not a file”
+STILL: the if then else structure is more readable. Use of this structure is recommended for while loops and trivial sanity checks with which you do not want to overly distract the reader. 
+
+- The case Statement: syntax:
+case $variable-name in
+	pattern1)    //commands;;
+	pattern2)   //commands;;
+	patternN)  // commands;;
+	*) //commands;;
+esac
+
+LOOPS 
+- for Loop: syntax:
+for {variable name} in {list}
+do
+//commands to be executed on each item until the list is finished
+done
+
+- for Loop: alternate syntax:
+for (( expr1; expr2; expr3 ))
+do
+….
+done
+
+- while Loop: syntax: (while loo runs until the condition becomes false)
+while [ condition ]
+do
+//commands
+done
+*while : always evaluates to true (semicolon : always evaluates to true
+
+- while Loop in a pipe: in a pipe, the while loop is run in a new instance of the shell, called subshell. Most of the time this doesn’t affect anything, but there are 2 things that matters: 
++ scope of variables: any changes it makes to variables within it will be lost when the loop exits (as it is running in a separate process) 
++ exit: when the while loop is in a subshell, saying “abort” or “exit” simply exits the loop (like the break statement) and returns control to the calling process 
+
+- until Loop syntax:(until loop runs until the condition becomes true)
+until [condition]
+do
+///commands
+done
+
+- select mechanism: syntax:
+select var in <list> ( list is a space separated set of items ) 
+do
+//commands
+done
++ when invoked this mechanism will take all the items in list and present them on the screen with a number before each item. A prompt will be printed after this to allow the user to select a number. When they select a number and hit enter, the corresponding item will be assigned to the variable var and the commands between do and done are run. 
+
+- Ranges: process a series of numbers (2 dots)
+ex: for value in {1..5} (2 dots) -> 1 2 3 4 5
+     for value in {10..0..2} (2 dots each) -> 10 8 6 4 2 0 
+
+- break Statement: stop the loop right away
+
+- continue Statement: stop running through this iteration of the loop and begin the next iteration 
+
+- Wildcards *: indicate that the command is to be used with all files indicated 
+
+test COMMAND or [ expr ]
+
+- test Command or [ expr ] is used to see if an expression is true, return 0 if true, return nonzero if false (like boolean)
+
+- Math operators:
++ if test 5 -eq 6 or if [ 5 -eq 6 ]: equal to
++ -ne : not equal to
++ -lt : less than
++ -le : less than or equal to
++ -gt : greater than
++ -ge : greater than or equal to 
+
+- String comparisons:
++ string1 = string2: equal to
++ string1 != string2: not equal to
++ string1 : string1 is not null or not defined
++ -n string1 : string 1 is not null and does exist (non zero length)
++ -z string1 : string1 is null and does exist (zero length)
+
+- Files and directories comparisons:
++ -s file : non empty file
++ -f file : is a file and not a directory
++ -d dir : is a directory and not a file
++ -w file : is a writeable file
++ -r file : is a readable file
++ -x file : is a file executable 
++ -a, -e file: file exists
++ -s file: file is a socket
++ -nt file: file is newer than
++ -ot file: file is older than
++ -ef file: paths refer to the same file 
+
+- Logical operators are used to combine two or more conditions at a time:
++ !expression: logical NOT
++ expression1 -a expression2 : logical AND
++ expression1 -o expression2: logical OR
+
+FUNCTIONS
+
+- A function may return a value in one of four different ways:
++ Change the state of a variable or variables 
++ Use the exit command to end the shell script
++ Use the return command to end the function, and return the supplied value to the calling section of the shell script 
++ echo output to stdout, which will be caught by the caller just as c=`expr $a + $b` is caught. 
+
+- Functions can be recursive 
+
+- Syntax: 
+function-name() 
+{
+//commands
+return
+}
+
+- To add functions to automat some of the day to day life tasks, add functions to /etc/bashrc file. To add function to this file you must logon as root.  
+
+- To print error message on stderr and not on stdout, add 1>&2 at the end of echo statements.
+Syntax: from>&destination ( 1 is the default number of stdout file, 2 is the default number of stderr file)
+
+*** You can print the returned value of a calculation in a function by using bash built in variable $? 
+
+OTHERS
+
+- Terminal is a bash shell itself and is the default interactive shell on macOS. write shell separately and then run it using command line?
+
+- We can use the semicolon ; to join two lines together. This is often done to save a bit of space in simple if statements. The backlash \ serves a similar, but opposite purpose: it tells the shell that this is not the end of the line, but that the following line should be treated as part of the current line. This is useful for readability. For example, the ; is often used to join the if and then keywords; while the \ is used to split the single-line command across two lines in the shell script file, for readability purpose  
+
+- The backtick (`   `) is used to indicate that the enclosed text is to be executed as a command. 
+
+- Debugging shell script: Syntax:
+sh option <shell script name> 
+bash option <shell script name> 
++ Option can be -v (print shell input lines as they are read - the exact values of variables) or -x (After expanding each simple-command, bash displays the expanded value of PS4 system variable, followed by the command and its expanded arguments - print the variables in general) 
++ Should use -v to debug complex shell script  
+For example: 
+++Script: 
+$ cat > dsh1.sh
+tot=`expr $1 + $2`
+echo $tot 
+++Debug with -x option:
+expr 4 + 5
+tot=9
+echo 9 
+0
+++Debug with -v option:
+tot=`expr $1 + $2`
+expr $1 + $2
+echo $tot
+9
+
+- /dev/null - Use to send unwanted output of program 
++ Syntax: command > /dev/null 
+ex: ls > /dev/null
+
+- Conditional execution && and || 
+
++ Syntax: command1 && command2; command1 || command2
+
++ Syntax: command1 && command2 || command3 
+if command1 is successful then command2 is executed; if command1 is not successful then command3 is executed. 
+
+
+****************
+sed - Search and replace within a variable
+awk - exercise 
+
+
+
+
+
+
+
