@@ -1,0 +1,73 @@
+#!/bin/bash
+
+#Script to implement getopts statement
+
+enter_info()
+{
+echo "Correct syntax: $0 -c -d -m -e"
+echo "-c : clear the screen"
+echo "-d : show list of files in current working directory"
+echo "-m : start mc (midnight commander shell) if installed"
+echo "-e {editor} start this {editor} if installed"
+return
+}
+
+clear-scr()
+{
+clear
+echo "Clearing screen, press a key..."
+read
+return
+}
+
+list-files()
+{
+echo "Showing list of files in current working directory: "
+ls
+echo "Press a key..."
+read
+return
+}
+
+start-mc()
+{
+if which mc >/dev/null ; then
+mc
+echo "Starting midnight commander, press a key..."
+read
+else
+echo "Midnight commander not found, press a key..."
+read
+fi
+return
+}
+
+start-editor()
+{
+ed=$1
+if which $ed > /dev/null ; then
+$ed
+echo "$ed, press a key..."
+read
+else
+echo "$ed not found, press a key..."
+read
+fi
+return
+}
+
+
+if [ $# -eq 0 ]; then
+enter_info
+fi
+
+while getopts cdme: opt
+do
+case $opt in
+c) clear-scr ;;
+d) list-files ;;
+m) start-mc ;;
+e) thised="$OPTARG"; start-editor $thised ;;
+*) enter_info; exit 1;;
+esac
+done
