@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#Script for system admin, getting info about the current system
+
+num_of_user=`who | wc -l`
+echo -e "User name: $USER (login name: $LOGNAME)" >> /tmp/info.tmp.$$
+echo -e "Current shell: $SHELL" >> /tmp/info.tmp.$$
+echo -e "Home directory: $HOME" >> /tmp/info.tmp.$$
+echo -e "Your OS type: $OSTYPE" >> /tmp/info.tmp.$$
+echo -e "Path: $PATH" >> /tmp/info.tmp.$$
+echo -e "Current directory: `pwd`" >> /tmp/info.tmp.$$
+echo -e "Currently logged: ${num_of_user} users" >> /tmp/info.tmp.$$
+
+if [ -f /etc/shells ]; then
+echo -e "Available shells: " >> /tmp/info.tmp.$$
+echo -e "`cat /etc/shells`" >> /tmp/info.tmp.$$
+fi
+
+if [ -f /proc/cpuinfo ]; then
+echo -e "------------------------------" >> /tmp/info.tmp.$$
+echo -e "Computer CPU information: " >> /tmp/info.tmp.$$
+echo -e "------------------------------" >> /tmp/info.tmp.$$
+cat /proc/cpuinfo >> /tmp/info.tmp.$$
+fi
+
+if [ -f /proc/meminfo ]; then
+echo -e "------------------------------" >> /tmp/info.tmp.$$
+echo -e "Computer memory information: " >> /tmp/info.tmp.$$
+echo -e "------------------------------" >> /tmp/info.tmp.$$
+cat /proc/meminfo >> /tmp/info.tmp.$$
+fi
+
+if [ -d /proc/ide/hda ]; then
+echo -e "-------------------------------" >> /tmp/info.tmp.$$
+echo -e "Hard disk info: " >> /tmp/info.tmp.$$
+echo -e "-------------------------------" >> /tmp/info.tmp.$$
+echo -e "Model: `cat /proc/ide/hda/model` " >> /tmp/info.tmp.$$
+echo -e "Driver: `cat /proc/ide/hda/driver` " >> /tmp/info.tmp.$$
+echo -e "Cache size: `cat /proc/ide/hda/cache` " >> /tmp/info.tmp.$$
+fi
+
+if [ -f /proc/mounts ]; then
+echo -e "-------------------------------" >> /tmp/info.tmp.$$
+echo -e "File System (Mount): " >> /tmp/info.tmp.$$
+echo -e "-------------------------------" >> /tmp/info.tmp.$$
+cat /proc/mounts >> /tmp/info.tmp.$$
+fi
+
+cat /tmp/info.tmp.$$ | more
+
+rm -f /tmp/info.tmp.$$
