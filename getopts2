@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#Script as exercise to implement getopts statement 2
+
+help_ani()
+{
+echo "Usage: $0 -n -a -s -w -d"
+echo "Options: these are optional arguments"
+echo " -n name of animal "
+echo " -a age of animal "
+echo " -s sex of animal "
+echo " -w weight of animal "
+echo " -d demo values (if any of the above options are used, their values are not taken "
+exit 1
+}
+
+isdef=0
+na=Moti
+age="2 months"
+sex="Female"
+weight=45kg
+
+if [ $# -lt 1 ]; then
+help_ani
+fi
+
+while getopts n:a:s:w:d opt
+do
+case "$opt" in
+n) na="$OPTARG";;
+a) age="$OPTARG";;
+s) sex="$OPTARG";;
+w) weight="OPTARG";;
+d) isdef=1;;
+*) help_ani;;
+esac
+done
+
+if [ $isdef -eq 0 ]; then
+echo "Animal name: $na, age: $age, sex: $sex, weight: $weight (user define mode)"
+else
+na="Coggi dog"
+age=2
+sex="Female"
+weight=45kg
+echo "Animal name: $na, age: $age, sex: $sex, weight: $weight (demo mode)"
+fi
