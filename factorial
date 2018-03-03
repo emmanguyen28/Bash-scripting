@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#Script to calculate factorial of a number
+
+if [ $# -eq 0 ]; then
+   echo "Wrong syntax. Correct syntax: $0 number"
+   echo "Example: $0 10 "
+else
+   num=$1
+   fac=1
+   while [ $num -gt 0 ]
+   do
+      fac=`expr $num \* $fac`
+      num=`expr $num - 1`
+   done
+   echo "Factorial of $1 is $fac"
+fi

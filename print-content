@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Script to print out a specified number of lines in a file
+
+if [ ! $# -eq 3 ]; then
+echo "Wrong syntax. Correct syntax: $0 number number file-name"
+echo "The first number is the first line of the lines to be printed"
+echo "The second number is the number of lines that follow the first line"
+echo "For example, $0 5 5 sonnets.txt will print 5 lines of the files, starting at line 5"
+else
+if [ ! -f $3 ]; then
+echo " $3 file does not exist "
+else
+tail +$1 $3 | head -n$2
+fi
+fi
